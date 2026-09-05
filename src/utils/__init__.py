@@ -1,0 +1,2 @@
+"""Shared SmartStock AI utilities."""
+

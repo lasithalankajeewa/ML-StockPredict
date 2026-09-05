@@ -1,0 +1,17 @@
+pandas
+numpy
+scikit-learn
+tensorflow
+matplotlib
+jupyter
+ipykernel
+fastapi
+uvicorn[standard]
+pydantic
+mlflow
+optuna
+pyarrow
+joblib
+python-dotenv
+pytest
+

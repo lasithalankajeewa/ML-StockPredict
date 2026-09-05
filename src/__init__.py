@@ -1,0 +1,2 @@
+"""SmartStock AI core package."""
+

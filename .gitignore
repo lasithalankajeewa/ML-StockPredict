@@ -1,0 +1,45 @@
+# Virtual environments and local configuration
+.venv/
+.env
+
+# Python bytecode, caches, and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (retain directory placeholders)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/demo/*
+!data/demo/.gitkeep
+
+# Generated model artifacts (retain directory placeholders)
+models/trained/*
+!models/trained/.gitkeep
+models/preprocessing/*
+!models/preprocessing/.gitkeep
+
+# Experiment tracking and generated reports
+mlruns/
+reports/figures/*
+!reports/figures/.gitkeep
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
