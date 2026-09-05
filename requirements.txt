@@ -1,6 +1,7 @@
 pandas
 numpy
 scikit-learn
+# TensorFlow wheels currently require Python 3.13 or earlier.
 tensorflow
 matplotlib
 jupyter
@@ -14,4 +15,3 @@ pyarrow
 joblib
 python-dotenv
 pytest
-

@@ -35,8 +35,7 @@ def test_load_raw_data_returns_all_three_frames(
         tmp_path / load_data.PRICES_FILENAME, index=False
     )
 
-    result = load_data.load_raw_data()
+    result = load_data.load_raw_data(validate=False)
 
     assert set(result) == {"calendar", "sales", "prices"}
     assert all(isinstance(frame, pd.DataFrame) for frame in result.values())
-

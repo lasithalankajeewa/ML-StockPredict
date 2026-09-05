@@ -7,7 +7,7 @@ these files manually in `data/raw/`:
 - `sales_train_evaluation.csv`
 - `sell_prices.csv`
 
-Raw dataset files are intentionally excluded from Git. Dataset validation,
-wide-to-long transformation, and exploratory analysis are deferred to the next
-development milestone.
-
+Raw dataset files are intentionally excluded from Git. Loading all three files
+with `load_raw_data()` now validates their schemas, required values, key
+uniqueness, numeric ranges, and cross-file relationships before downstream work
+begins. Wide-to-long transformation and exploratory analysis remain deferred.
