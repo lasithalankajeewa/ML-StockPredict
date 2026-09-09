@@ -106,10 +106,11 @@ python -m pip install -r requirements.txt
 If PowerShell blocks activation for the current process, run
 `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` and activate again.
 
-If `.venv` was accidentally created with Python 3.14, deactivate it, remove only
-the repository's `.venv` directory, and recreate it with `py -3.11 -m venv
-.venv`. A virtual environment keeps the Python version with which it was created;
-installing another Python version does not change an existing environment.
+If VS Code created `.venv` or `.venv-1` with Python 3.14, close its terminals,
+remove only those two generated environment directories, and recreate `.venv`
+with `py -3.11 -m venv .venv`. A virtual environment keeps the Python version
+with which it was created; installing another Python version does not change an
+existing environment.
 
 Select `.venv` as the Python interpreter in VS Code. Then start Jupyter with:
 

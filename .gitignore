@@ -1,5 +1,6 @@
 # Virtual environments and local configuration
 .venv/
+.venv-*/
 .env
 
 # Python bytecode, caches, and build artifacts
@@ -42,4 +43,3 @@ reports/figures/*
 .idea/
 .DS_Store
 Thumbs.db
-
