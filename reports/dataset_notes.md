@@ -8,6 +8,8 @@ these files manually in `data/raw/`:
 - `sell_prices.csv`
 
 Raw dataset files are intentionally excluded from Git. Loading all three files
-with `load_raw_data()` now validates their schemas, required values, key
-uniqueness, numeric ranges, and cross-file relationships before downstream work
-begins. Wide-to-long transformation and exploratory analysis remain deferred.
+with `load_raw_data()` validates their schemas, required values, key uniqueness,
+numeric ranges, and cross-file relationships before downstream work begins. The
+development pipeline currently filters to `CA_1` and converts its sales from wide
+to memory-optimized long format. Scaling that transformation to every store is
+deferred until the complete preprocessing pipeline is verified.

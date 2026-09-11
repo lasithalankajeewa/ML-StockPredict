@@ -17,3 +17,5 @@ CALENDAR_FILENAME = "calendar.csv"
 SALES_FILENAME = "sales_train_evaluation.csv"
 PRICES_FILENAME = "sell_prices.csv"
 
+# Use one store while developing and validating memory-intensive transformations.
+DEVELOPMENT_STORE_ID = "CA_1"

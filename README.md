@@ -136,7 +136,8 @@ python -m pytest
 ## Current Scope
 
 This repository currently contains the project scaffold, configuration, raw M5
-CSV loaders, schema and data-quality validation, minimal notebooks, and an API
-health endpoint. It intentionally does not yet implement preprocessing, feature
-engineering, model architectures, training, predictions, inventory calculations,
-or exploratory analysis.
+CSV loaders, schema and data-quality validation, exploratory analysis, a `CA_1`
+development subset, a memory-optimized wide-to-long sales transformation, and an
+API health endpoint. Calendar and price merging, predictive feature engineering,
+model architectures, training, predictions, and inventory calculations are not
+implemented yet.
