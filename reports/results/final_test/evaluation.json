@@ -1,0 +1,41 @@
+{
+  "model_name": "DNN (original)",
+  "bundle_dir": "D:\\Repos\\ML-StockPredict\\models\\trained\\best_model_20260912T132137305253Z",
+  "artifact_sha256": {
+    "preprocessing.joblib": "34a7d0928eca8789b9b65e30f2c0157b60605b4609ad64870c869e7cb090de97",
+    "model.keras": "048a47edbe67bf6b5966066c173ee8188cbff7d0b88ae262eafd083867f6ac0b"
+  },
+  "evaluated_at_utc": "2026-09-12T13:59:12.243673+00:00",
+  "test_start": "2016-04-18",
+  "test_end": "2016-05-15",
+  "forecast_origin_days": 28,
+  "forecast_horizon_days": 7,
+  "stores": [
+    "CA_1",
+    "CA_2",
+    "CA_3",
+    "CA_4",
+    "TX_1",
+    "TX_2",
+    "TX_3",
+    "WI_1",
+    "WI_2",
+    "WI_3"
+  ],
+  "test_rows": 853720,
+  "sampled": false,
+  "refitted": false,
+  "model_metrics": {
+    "Rows": 853720,
+    "MAE": 3.374306569904111,
+    "RMSE": 7.447250554037582,
+    "WAPE": 33.638778864924774
+  },
+  "naive_metrics": {
+    "Rows": 853720,
+    "MAE": 3.936807149885208,
+    "RMSE": 8.313987907762565,
+    "WAPE": 39.246399935915306
+  },
+  "protocol": "Rolling forecast origins using observed history at each origin."
+}
