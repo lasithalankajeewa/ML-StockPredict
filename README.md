@@ -155,6 +155,26 @@ python -m uvicorn api.main:app --reload
 Open `http://127.0.0.1:8000/health` to check the service, or
 `http://127.0.0.1:8000/docs` for the generated API documentation.
 
+The `POST /predict` endpoint accepts one engineered feature row together with
+the product ID, current stock, and safety stock. It loads the latest exported
+`best_model_*` bundle once, applies the saved preprocessing, predicts total
+demand for the next seven days, and returns an inventory action:
+
+```json
+{
+  "product": "FOODS_1_001",
+  "predictedDemand7Days": 37,
+  "currentStock": 12,
+  "safetyStock": 6,
+  "recommendedReorder": 31,
+  "riskLevel": "HIGH"
+}
+```
+
+The request schema and all required engineered features are documented in
+Swagger at `/docs`. Set `SMARTSTOCK_MODEL_BUNDLE` in `.env` when the exported
+bundle is outside `models/trained/`.
+
 Run the tests with:
 
 ```powershell
@@ -163,10 +183,9 @@ python -m pytest
 
 ## Current Scope
 
-This repository currently contains the project scaffold, configuration, raw M5
-CSV loaders, schema and data-quality validation, exploratory analysis, a `CA_1`
-development partition, a memory-optimized wide-to-long transformation, automated
-per-store feature partitions, and an API health endpoint. Time-series calculations
-use `store_id` and `item_id` together, preventing history from leaking between
-stores. Model architectures, training, predictions, and inventory calculations
-are not implemented yet.
+This repository contains the raw-data validation and feature pipelines, model
+experiments, a frozen DNN and preprocessing bundle, held-out evaluation results,
+and a FastAPI prediction endpoint. Time-series calculations use `store_id` and
+`item_id` together, preventing history from leaking between stores. The API
+turns a seven-day demand prediction into a reorder quantity and LOW, MEDIUM, or
+HIGH stock-risk level.
