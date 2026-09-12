@@ -41,6 +41,9 @@ mlruns/
 reports/figures/*
 !reports/figures/.gitkeep
 
+# Local-only submission recording notes
+reports/demo_video_script.md
+
 # Editors and operating systems
 .vscode/
 .idea/

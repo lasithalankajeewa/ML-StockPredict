@@ -202,9 +202,7 @@ npm.cmd run build
 
 ## Demo video
 
-A recording outline is provided in
-[`reports/demo_video_script.md`](reports/demo_video_script.md). Record the final
-5–10 minute walkthrough, upload it as an unlisted YouTube or shareable Drive
-video, and place its URL here before submission:
+Record the final 5–10 minute walkthrough, upload it as an unlisted YouTube or
+shareable Drive video, and place its URL here before submission:
 
 **Demo video:** pending recording
