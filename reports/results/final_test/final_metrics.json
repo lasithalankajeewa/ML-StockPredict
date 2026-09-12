@@ -1,0 +1,35 @@
+{
+  "status": "modeling_complete",
+  "selected_model": "DNN (original)",
+  "selection_basis": "lowest validation WAPE before opening the test set",
+  "test_period": {
+    "start": "2016-04-18",
+    "end": "2016-05-15"
+  },
+  "test_rows": 853720,
+  "stores": 10,
+  "dnn": {
+    "MAE": 3.374306569904111,
+    "RMSE": 7.447250554037582,
+    "WAPE": 33.638778864924774
+  },
+  "seasonal_naive": {
+    "MAE": 3.936807149885208,
+    "RMSE": 8.313987907762565,
+    "WAPE": 39.246399935915306
+  },
+  "relative_wape_reduction_percent": 14.288243202299087,
+  "post_test_analysis_used_for_model_selection": false,
+  "saved_tables": [
+    "test_summary.csv",
+    "test_by_store.csv",
+    "category_error_metrics.csv",
+    "demand_level_error_metrics.csv"
+  ],
+  "saved_plots": [
+    "test_metrics.png",
+    "all_store_metric_comparison.png",
+    "wape_improvement_by_store.png",
+    "category_demand_error_analysis.png"
+  ]
+}
