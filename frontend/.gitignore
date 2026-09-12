@@ -1,5 +1,6 @@
 node_modules/
 .next/
 out/
+.edge-test/
 .env*.local
 npm-debug.log*
