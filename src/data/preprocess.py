@@ -11,6 +11,24 @@ from src.data.validation import DAY_COLUMN_PATTERN, SALES_ID_COLUMNS
 
 REQUIRED_DATASETS = {"calendar", "sales", "prices"}
 
+CALENDAR_COLUMNS = (
+    "d",
+    "date",
+    "wm_yr_wk",
+    "weekday",
+    "wday",
+    "month",
+    "year",
+    "event_name_1",
+    "event_type_1",
+    "event_name_2",
+    "event_type_2",
+    "snap_CA",
+    "snap_TX",
+    "snap_WI",
+)
+PRICE_KEYS = ("store_id", "item_id", "wm_yr_wk")
+
 
 def select_store_subset(
     data: Mapping[str, pd.DataFrame],
@@ -150,3 +168,125 @@ def reshape_sales_to_long(sales: pd.DataFrame) -> pd.DataFrame:
     )
 
     return sales_long
+
+
+def merge_store_data(
+    data: Mapping[str, pd.DataFrame],
+    store_id: str = DEVELOPMENT_STORE_ID,
+) -> pd.DataFrame:
+    """Create a cleaned daily panel for one store.
+
+    Working store by store prevents the roughly 59 million-row all-store panel
+    from being materialized in memory. The returned frame is ready for
+    :func:`src.data.features.build_features`.
+
+    Args:
+        data: Validated raw M5 calendar, sales, and price tables.
+        store_id: Store partition to prepare.
+
+    Returns:
+        Daily item-store demand merged with calendar and weekly price data.
+
+    Raises:
+        ValueError: If a merge key is missing or duplicated, a merge changes the
+            row count, or the store cannot be mapped to a SNAP column.
+    """
+    store_data = select_store_subset(data, store_id=store_id)
+    sales_long = reshape_sales_to_long(store_data["sales"])
+
+    calendar = store_data["calendar"]
+    missing_calendar = sorted(set(CALENDAR_COLUMNS).difference(calendar.columns))
+    if missing_calendar:
+        raise ValueError(
+            "The calendar dataset is missing columns: "
+            + ", ".join(missing_calendar)
+            + "."
+        )
+    if calendar.duplicated(subset=["d"]).any():
+        raise ValueError("The calendar dataset contains duplicate d values.")
+
+    calendar = calendar.loc[:, CALENDAR_COLUMNS].copy()
+    sales_days = sales_long["d"].cat.categories
+    calendar = calendar.loc[calendar["d"].isin(sales_days)].copy()
+    missing_days = sales_days.difference(calendar["d"])
+    if not missing_days.empty:
+        preview = ", ".join(map(str, missing_days[:5]))
+        raise ValueError(f"Calendar data is missing sales days: {preview}.")
+    calendar["date"] = pd.to_datetime(calendar["date"], errors="raise")
+    calendar["d"] = pd.Categorical(
+        calendar["d"], categories=sales_days, ordered=True
+    )
+
+    expected_rows = len(sales_long)
+    merged = sales_long.merge(
+        calendar,
+        on="d",
+        how="left",
+        validate="many_to_one",
+        sort=False,
+    )
+    if len(merged) != expected_rows or merged["date"].isna().any():
+        raise ValueError("The calendar merge did not preserve every sales row.")
+
+    prices = store_data["prices"]
+    missing_price_columns = sorted(
+        set((*PRICE_KEYS, "sell_price")).difference(prices.columns)
+    )
+    if missing_price_columns:
+        raise ValueError(
+            "The price dataset is missing columns: "
+            + ", ".join(missing_price_columns)
+            + "."
+        )
+    if prices.duplicated(subset=list(PRICE_KEYS)).any():
+        raise ValueError("The price dataset contains duplicate item-week keys.")
+
+    prices = prices.loc[:, [*PRICE_KEYS, "sell_price"]].copy()
+    for column in ("store_id", "item_id"):
+        prices[column] = pd.Categorical(
+            prices[column], categories=merged[column].cat.categories
+        )
+    prices["sell_price"] = pd.to_numeric(
+        prices["sell_price"], downcast="float"
+    )
+
+    merged = merged.merge(
+        prices,
+        on=list(PRICE_KEYS),
+        how="left",
+        validate="many_to_one",
+        sort=False,
+    )
+    if len(merged) != expected_rows:
+        raise ValueError("The price merge did not preserve every sales row.")
+
+    state_ids = merged["state_id"].dropna().astype("string").unique()
+    if len(state_ids) != 1:
+        raise ValueError(f"Store {store_id!r} does not map to exactly one state.")
+    snap_column = f"snap_{state_ids[0]}"
+    if snap_column not in merged.columns:
+        raise ValueError(f"Calendar data is missing {snap_column!r}.")
+    merged["snap"] = pd.to_numeric(merged[snap_column], downcast="unsigned")
+    merged = merged.drop(columns=["snap_CA", "snap_TX", "snap_WI"])
+
+    event_columns = (
+        "event_name_1",
+        "event_type_1",
+        "event_name_2",
+        "event_type_2",
+    )
+    for column in event_columns:
+        merged[column] = merged[column].fillna("NoEvent").astype("category")
+
+    for column in ("weekday",):
+        merged[column] = merged[column].astype("category")
+    for column in ("wday", "month"):
+        merged[column] = pd.to_numeric(merged[column], downcast="unsigned")
+    merged["year"] = pd.to_numeric(merged["year"], downcast="unsigned")
+    merged["wm_yr_wk"] = pd.to_numeric(
+        merged["wm_yr_wk"], downcast="unsigned"
+    )
+
+    return merged.sort_values(
+        ["store_id", "item_id", "date"], kind="stable"
+    ).reset_index(drop=True)

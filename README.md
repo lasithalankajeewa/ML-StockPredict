@@ -61,6 +61,34 @@ unique keys, demand or price ranges, or cross-file relationships are invalid.
 Use `load_raw_data(validate=False)` only when intentionally inspecting invalid
 source data.
 
+## Build Feature Partitions
+
+Build one store first to verify the pipeline and available disk space:
+
+```powershell
+python -m src.data.pipeline --stores CA_1
+```
+
+Build all stores from an empty output directory with the command below. They are
+processed sequentially, so the complete 59-million-row long dataset is never
+held in memory:
+
+```powershell
+python -m src.data.pipeline
+```
+
+If the `CA_1` partition already exists from the notebook or the test command,
+rebuild a consistent set of all ten partitions explicitly:
+
+```powershell
+python -m src.data.pipeline --overwrite
+```
+
+Each result is saved under
+`data/processed/features/store_id=<STORE_ID>/features.parquet`, together with a
+`manifest.csv`. Existing partitions are protected by default; add `--overwrite`
+only when you intentionally want to rebuild them.
+
 ## Project Structure
 
 ```text
@@ -137,8 +165,8 @@ python -m pytest
 
 This repository currently contains the project scaffold, configuration, raw M5
 CSV loaders, schema and data-quality validation, exploratory analysis, a `CA_1`
-development partition, a memory-optimized wide-to-long sales transformation, and
-an API health endpoint. Time-series calculations use `store_id` and `item_id`
-together so the feature logic is safe for the final all-store model. Automated
-all-store partition generation, model architectures, training, predictions, and
-inventory calculations are not implemented yet.
+development partition, a memory-optimized wide-to-long transformation, automated
+per-store feature partitions, and an API health endpoint. Time-series calculations
+use `store_id` and `item_id` together, preventing history from leaking between
+stores. Model architectures, training, predictions, and inventory calculations
+are not implemented yet.
