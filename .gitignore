@@ -18,6 +18,7 @@ dist/
 
 # Jupyter
 .ipynb_checkpoints/
+notebooks/runs/
 
 # Data (retain directory placeholders)
 data/raw/*
@@ -30,6 +31,8 @@ data/demo/*
 # Generated model artifacts (retain directory placeholders)
 models/trained/*
 !models/trained/.gitkeep
+!models/trained/best_model_20260912T132137305253Z/
+!models/trained/best_model_20260912T132137305253Z/**
 models/preprocessing/*
 !models/preprocessing/.gitkeep
 

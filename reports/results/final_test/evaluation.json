@@ -1,6 +1,6 @@
 {
   "model_name": "DNN (original)",
-  "bundle_dir": "D:\\Repos\\ML-StockPredict\\models\\trained\\best_model_20260912T132137305253Z",
+  "bundle_dir": "models/trained/best_model_20260912T132137305253Z",
   "artifact_sha256": {
     "preprocessing.joblib": "34a7d0928eca8789b9b65e30f2c0157b60605b4609ad64870c869e7cb090de97",
     "model.keras": "048a47edbe67bf6b5966066c173ee8188cbff7d0b88ae262eafd083867f6ac0b"

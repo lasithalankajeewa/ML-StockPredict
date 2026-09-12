@@ -1,11 +1,16 @@
-"""Naive baseline model placeholder.
+"""Seasonal-naive baseline used for seven-day demand evaluation."""
 
-The baseline will be implemented after the chronological dataset split and
-seven-day target are defined.
-"""
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
 
 
-def build_baseline() -> None:
-    """Build the naive forecasting baseline in a future milestone."""
-    raise NotImplementedError("The baseline model is not implemented yet.")
-
+def seasonal_naive_predict(features: pd.DataFrame) -> np.ndarray:
+    """Predict next-week demand with observed demand from the previous week."""
+    if "sales_sum_7" not in features:
+        raise ValueError("The seasonal baseline requires the sales_sum_7 feature.")
+    values = features["sales_sum_7"].to_numpy(dtype=np.float32)
+    if not np.isfinite(values).all():
+        raise ValueError("sales_sum_7 contains non-finite values.")
+    return np.maximum(values, 0)

@@ -1,177 +1,181 @@
 # SmartStock AI
 
-SmartStock AI is a retail inventory decision-support project based on the M5
-Forecasting - Accuracy dataset.
+SmartStock AI forecasts each product-store pair's total demand for the next
+seven days and turns that forecast into an inventory risk and reorder quantity.
+The project uses the M5 Forecasting - Accuracy dataset and includes an executed
+EDA, a leakage-safe feature pipeline, ANN/DNN experiments, final evaluation,
+the selected model, a FastAPI service, and a searchable Next.js dashboard.
 
-## Problem Statement
+## Results
 
-Retail businesses must maintain enough inventory to satisfy future demand while
-avoiding unnecessary overstock. SmartStock AI will use historical retail sales
-data and a Deep Neural Network to forecast product-level short-term demand and
-convert those predictions into inventory risk alerts and reorder recommendations.
+The original DNN was selected by validation WAPE before the test set was opened.
+On all 853,720 final-test rows across ten stores it achieved:
 
-## ML Objective
+| Model | MAE | RMSE | WAPE |
+|---|---:|---:|---:|
+| Seasonal naive | 3.9368 | 8.3140 | 39.2464% |
+| Selected DNN | **3.3743** | **7.4473** | **33.6388%** |
 
-Predict total product demand for the next 7 days.
+This is a 14.29% relative reduction in WAPE. See the complete
+[evaluation report](reports/evaluation_report.md), including per-store,
+category, demand-level, bias, and limitation analysis.
 
-## Planned Pipeline
+## Architecture
 
-```text
-M5 Raw Data
--> Data Cleaning
--> Wide-to-Long Transformation
--> Feature Engineering
--> Chronological Train/Validation/Test Split
--> Naive Baseline
--> ANN
--> DNN
--> Evaluation
--> FastAPI
--> Next.js Application
--> Reorder Recommendations
+```mermaid
+flowchart LR
+    A[M5 raw CSV files] --> B[Validation and per-store pipeline]
+    B --> C[Leakage-safe feature Parquet files]
+    C --> D[ANN and DNN experiment notebook]
+    D --> E[Selected Keras model and fitted preprocessing]
+    E --> F[FastAPI prediction service]
+    D --> G[Final predictions and metrics]
+    G --> H[Dashboard catalog builder]
+    H --> I[Next.js inventory dashboard]
+    F --> J[7-day demand and reorder JSON]
 ```
 
-## Planned Evaluation Metrics
+The feature pipeline calculates lags and rolling statistics separately for each
+`store_id` and `item_id`. Chronological train, validation, and test windows use
+seven-day purge gaps because the target includes the following seven days. The
+API loads the committed Keras model and fitted preprocessing once, transforms a
+feature row, predicts demand, and applies the inventory rule. The dashboard uses
+a frozen final-forecast catalog containing all 30,490 product-store pairs.
 
-- Mean Absolute Error (MAE)
-- Root Mean Squared Error (RMSE)
-- Weighted Absolute Percentage Error (WAPE)
+## Repository contents
 
-## Dataset Files
+| Path | Purpose |
+|---|---|
+| [`reports/problem_statement.md`](reports/problem_statement.md) | Business problem, objective, scope, success criteria, and constraints |
+| [`reports/dataset_notes.md`](reports/dataset_notes.md) | Dataset source, competition rules, citation, and download procedure |
+| [`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb) | Executed EDA with demand, calendar, event, price, and product visualizations |
+| [`notebooks/02_feature_engineering.ipynb`](notebooks/02_feature_engineering.ipynb) | Incremental feature-development notebook |
+| [`notebooks/03_model_experiments.ipynb`](notebooks/03_model_experiments.ipynb) | Baseline, ANN, DNN, five tuning runs, selection, and final evaluation |
+| [`src/data`](src/data) | Runnable raw-data validation, preprocessing, and feature pipeline |
+| [`src/models`](src/models) | Reusable model builders, tuning definitions, evaluation, and artifact loading |
+| [`models/trained/best_model_20260912T132137305253Z`](models/trained/best_model_20260912T132137305253Z) | Selected DNN, fitted preprocessing, metadata, and checksums |
+| [`reports/results/final_test`](reports/results/final_test) | Final metrics, plots, error tables, and prediction files |
+| [`api`](api) | FastAPI health and prediction service |
+| [`frontend`](frontend) | Next.js inventory dashboard and full product catalog |
+| [`tests`](tests) | Pipeline, feature, evaluation, and API tests |
 
-Download the M5 data manually and place these files in `data/raw/`:
+## Quick start from a fresh clone
 
-- `calendar.csv`
-- `sales_train_evaluation.csv`
-- `sell_prices.csv`
+The committed model and dashboard catalog let you run the demonstration without
+downloading or retraining the M5 dataset.
 
-The raw files are ignored by Git and must not be committed. The application does
-not download the dataset automatically.
+Prerequisites are Git, Python 3.11, and Node.js 20.9 or newer. A Kaggle account
+and at least 2 GB of free disk space are needed only to reproduce the full data
+and training workflow.
 
-Load and validate all three files from Python with:
+### 1. Clone and install Python dependencies
 
-```python
-from src.data.load_data import load_raw_data
-
-raw_data = load_raw_data()
-```
-
-Validation fails fast with one actionable summary if schemas, required values,
-unique keys, demand or price ranges, or cross-file relationships are invalid.
-Use `load_raw_data(validate=False)` only when intentionally inspecting invalid
-source data.
-
-## Build Feature Partitions
-
-Build one store first to verify the pipeline and available disk space:
+Use Python 3.11 on Windows PowerShell:
 
 ```powershell
-python -m src.data.pipeline --stores CA_1
-```
-
-Build all stores from an empty output directory with the command below. They are
-processed sequentially, so the complete 59-million-row long dataset is never
-held in memory:
-
-```powershell
-python -m src.data.pipeline
-```
-
-If the `CA_1` partition already exists from the notebook or the test command,
-rebuild a consistent set of all ten partitions explicitly:
-
-```powershell
-python -m src.data.pipeline --overwrite
-```
-
-Each result is saved under
-`data/processed/features/store_id=<STORE_ID>/features.parquet`, together with a
-`manifest.csv`. Existing partitions are protected by default; add `--overwrite`
-only when you intentionally want to rebuild them.
-
-## Project Structure
-
-```text
-data/          Raw, processed, and demonstration data
-notebooks/     EDA, feature-engineering, and model experiment notebooks
-src/           Data pipeline, models, configuration, and utilities
-models/        Generated trained models and preprocessing artifacts
-api/           FastAPI application and future service layer
-frontend/      Next.js inventory decision dashboard
-reports/       Project notes, evaluation results, and figures
-tests/         Automated tests
-```
-
-## Setup in VS Code (Windows PowerShell)
-
-Use Python 3.11, 3.12, or 3.13. Python 3.14 is not currently supported because
-TensorFlow does not publish a compatible wheel for it. Python 3.11 is the
-recommended interpreter for this project.
-
-Verify that Python 3.11 is installed:
-
-```powershell
-py -0p
-py -3.11 --version
-```
-
-If it is missing, install it with Windows Package Manager, then reopen the VS
-Code terminal:
-
-```powershell
-winget install --exact --id Python.Python.3.11
-```
-
-Then, from the repository root, run:
-
-```powershell
+git clone https://github.com/lasithalankajeewa/ML-StockPredict.git
+cd ML-StockPredict
 py -3.11 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
-python -c "import sys; print(sys.version); assert sys.version_info[:2] == (3, 11)"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation for the current process, run
-`Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` and activate again.
-
-If VS Code created `.venv` or `.venv-1` with Python 3.14, close its terminals,
-remove only those two generated environment directories, and recreate `.venv`
-with `py -3.11 -m venv .venv`. A virtual environment keeps the Python version
-with which it was created; installing another Python version does not change an
-existing environment.
-
-Select `.venv` as the Python interpreter in VS Code. Then start Jupyter with:
-
-```powershell
-jupyter notebook
-```
-
-Start the API development server with:
+### 2. Start FastAPI
 
 ```powershell
 python -m uvicorn api.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000/health` to check the service, or
-`http://127.0.0.1:8000/docs` for the generated API documentation.
+Open <http://127.0.0.1:8000/health> for the health response and
+<http://127.0.0.1:8000/docs> for the interactive API schema. The committed
+bundle is discovered automatically. `SMARTSTOCK_MODEL_BUNDLE` is only needed
+when you want to load a different bundle.
 
-In another terminal, start the inventory dashboard with:
+### 3. Start the dashboard
+
+In a second terminal:
 
 ```powershell
-cd frontend
+cd ML-StockPredict\frontend
 npm.cmd install
 npm.cmd run dev
 ```
 
-Open `http://localhost:3000`. The dashboard displays the final-model metrics,
-inventory risks, reorder actions, and a selectable product-demand detail view.
-Its live refresh action calls FastAPI through a server-side Next.js proxy.
+Open <http://localhost:3000>. The dashboard provides all 30,490 product-store
+forecasts with product search, store and risk filters, pagination, historical
+demand, stock coverage, and reorder recommendations. M5 does not include live
+inventory; current stock and safety stock in the dashboard are deterministic
+demonstration inputs.
 
-The `POST /predict` endpoint accepts one engineered feature row together with
-the product ID, current stock, and safety stock. It loads the latest exported
-`best_model_*` bundle once, applies the saved preprocessing, predicts total
-demand for the next seven days, and returns an inventory action:
+## Reproduce the data and modeling workflow
+
+The raw and processed datasets are intentionally not committed. Two raw files
+exceed GitHub's 100 MB per-file limit, and the processed partitions total
+hundreds of megabytes. They can be recreated from the official source.
+
+### 1. Download M5
+
+Create a Kaggle account, accept the
+[M5 competition rules](https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules),
+and configure a Kaggle API token. Then run:
+
+```powershell
+python scripts/download_m5_data.py
+```
+
+See [dataset notes](reports/dataset_notes.md) for credential options, source,
+usage terms, and citation.
+
+### 2. Build features
+
+Build one store first to verify memory and disk capacity:
+
+```powershell
+python -m src.data.pipeline --stores CA_1
+```
+
+Build all ten stores:
+
+```powershell
+python -m src.data.pipeline --overwrite
+```
+
+Each store is processed separately and saved under
+`data/processed/features/store_id=<STORE_ID>/features.parquet`.
+
+### 3. Run the model experiments
+
+The executed notebook already contains every output. To rerun it interactively:
+
+```powershell
+jupyter notebook notebooks/03_model_experiments.ipynb
+```
+
+To execute every cell noninteractively and preserve a separate run:
+
+```powershell
+python -m src.models.train
+```
+
+This workflow trains the seasonal naive baseline, ANN, original DNN, and five
+DNN configurations; selects by validation WAPE; exports the winner; and runs the
+frozen final test evaluation. Full training is compute-intensive and can take
+several hours on CPU.
+
+### 4. Rebuild the dashboard catalog
+
+After generating final predictions:
+
+```powershell
+python scripts/build_dashboard_catalog.py
+```
+
+## API contract
+
+`POST /predict` accepts one engineered feature row plus product ID, current
+stock, and safety stock. It returns:
 
 ```json
 {
@@ -184,21 +188,24 @@ demand for the next seven days, and returns an inventory action:
 }
 ```
 
-The request schema and all required engineered features are documented in
-Swagger at `/docs`. Set `SMARTSTOCK_MODEL_BUNDLE` in `.env` when the exported
-bundle is outside `models/trained/`.
+Swagger at `/docs` lists every required feature. The inference service never
+fits preprocessing on request data.
 
-Run the tests with:
+## Validation commands
 
 ```powershell
 python -m pytest
+python -m src.models.tune
+cd frontend
+npm.cmd run lint
+npm.cmd run build
 ```
 
-## Current Scope
+## Demo video
 
-This repository contains the raw-data validation and feature pipelines, model
-experiments, a frozen DNN and preprocessing bundle, held-out evaluation results,
-and a FastAPI prediction endpoint. Time-series calculations use `store_id` and
-`item_id` together, preventing history from leaking between stores. The API
-turns a seven-day demand prediction into a reorder quantity and LOW, MEDIUM, or
-HIGH stock-risk level.
+A recording outline is provided in
+[`reports/demo_video_script.md`](reports/demo_video_script.md). Record the final
+5–10 minute walkthrough, upload it as an unlisted YouTube or shareable Drive
+video, and place its URL here before submission:
+
+**Demo video:** pending recording

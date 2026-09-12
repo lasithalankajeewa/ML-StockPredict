@@ -1,6 +1,6 @@
 Model,Hidden layers,Dropout,Learning rate,Parameters,Epochs trained,Best epoch,Training seconds,MAE,RMSE,WAPE,Model path
-DNN D - Deep,256 → 128 → 64 → 32,0.2,0.0005,160320,10,7,317.7993884000025,3.3532344358308475,7.789365612538873,34.72557052236994,D:\Repos\ML-StockPredict\models\trained\dnn_tuning\dnn_d__deep.keras
-DNN B - Balanced,256 → 128 → 64,0.2,0.001,158144,7,4,184.01599440000427,3.3592520802909958,7.809407869650588,34.78788830571563,D:\Repos\ML-StockPredict\models\trained\dnn_tuning\dnn_b__balanced.keras
-DNN C - Wide,512 → 256 → 128,0.25,0.0005,300480,6,3,382.6129282000038,3.3700193271293695,7.856364777706692,34.89939222724956,D:\Repos\ML-StockPredict\models\trained\dnn_tuning\dnn_c__wide.keras
-DNN E - Regularized,512 → 256 → 128 → 64,0.35,0.0005,308928,17,14,957.6454628000065,3.3702020495096576,7.96772307677687,34.90128447159576,D:\Repos\ML-StockPredict\models\trained\dnn_tuning\dnn_e__regularized.keras
-DNN A - Small,128 → 64,0.15,0.001,115520,11,8,158.50792360000196,3.3711370915926446,7.860503880880347,34.91096762092979,D:\Repos\ML-StockPredict\models\trained\dnn_tuning\dnn_a__small.keras
+DNN D - Deep,256 → 128 → 64 → 32,0.2,0.0005,160320,10,7,317.7993884000025,3.3532344358308475,7.789365612538873,34.72557052236994,models/trained/dnn_tuning/dnn_d__deep.keras
+DNN B - Balanced,256 → 128 → 64,0.2,0.001,158144,7,4,184.01599440000427,3.3592520802909958,7.809407869650588,34.78788830571563,models/trained/dnn_tuning/dnn_b__balanced.keras
+DNN C - Wide,512 → 256 → 128,0.25,0.0005,300480,6,3,382.6129282000038,3.3700193271293695,7.856364777706692,34.89939222724956,models/trained/dnn_tuning/dnn_c__wide.keras
+DNN E - Regularized,512 → 256 → 128 → 64,0.35,0.0005,308928,17,14,957.6454628000065,3.3702020495096576,7.96772307677687,34.90128447159576,models/trained/dnn_tuning/dnn_e__regularized.keras
+DNN A - Small,128 → 64,0.15,0.001,115520,11,8,158.50792360000196,3.3711370915926446,7.860503880880347,34.91096762092979,models/trained/dnn_tuning/dnn_a__small.keras
