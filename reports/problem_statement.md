@@ -61,17 +61,15 @@ business action while keeping the forecast visible for human review.
 
 ## Data and prediction scope
 
-To represent the multi-outlet environment I encounter in POS work, I use stored
-multi-location retail sales data. It contains hierarchical unit sales for 3,049
-products sold across ten stores in California, Texas, and Wisconsin. Calendar,
-event, SNAP, and weekly selling-price data provide explanatory variables. The
-implemented final evaluation covers 30,490 product-store series and 853,720
-rolling forecast origins.
+To represent the multi-outlet environment I encounter in POS work, I use a
+stored US multi-location retail sales dataset. It contains hierarchical unit
+sales for 3,049 products across ten stores, together with calendar, event, and
+weekly selling-price information. The implemented final evaluation covers
+30,490 product-store series and 853,720 rolling forecast origins.
 
-The source dataset supports a 28-day objective. SmartStock AI intentionally
-uses a seven-day horizon because weekly replenishment is easier to present and
-evaluate in an inventory dashboard. This is an educational decision-support
-system, not a production ordering system.
+SmartStock AI uses a seven-day horizon because weekly replenishment is practical
+to present and evaluate in an inventory dashboard. This is an educational
+decision-support system, not a production ordering system.
 
 ## Modeling objective and validation
 
@@ -110,15 +108,16 @@ with 39.25% for the seasonal naive baseline, a relative reduction of 14.29%.
 
 ## Constraints and limitations
 
-The M5 data is historical and represents a limited set of US stores, so results
+The dataset is historical and represents a limited set of US stores, so results
 do not automatically generalize to other retailers, countries, or recent market
 conditions. Targets from adjacent forecast origins overlap, which makes the
 853,720 evaluation rows useful for aggregate comparison but not statistically
 independent observations. Forecasts are point estimates and do not quantify
 uncertainty.
 
-M5 does not contain live inventory, lead time, supplier constraints, case-pack
-sizes, spoilage, or ordering costs. Dashboard current-stock and safety-stock
-values are deterministic demonstration inputs. A real deployment must connect
-to an inventory system, validate stock freshness, incorporate lead times and
+The stored dataset does not contain live inventory, lead time, supplier
+constraints, case-pack sizes, spoilage, or ordering costs. The current-stock
+and safety-stock values shown in the dashboard are deterministic demonstration
+inputs. A real deployment must connect to an inventory system, validate stock
+freshness, incorporate lead times and
 service levels, monitor drift, and keep a human approval step for purchasing.
