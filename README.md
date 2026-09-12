@@ -137,7 +137,8 @@ python -m pytest
 
 This repository currently contains the project scaffold, configuration, raw M5
 CSV loaders, schema and data-quality validation, exploratory analysis, a `CA_1`
-development subset, a memory-optimized wide-to-long sales transformation, and an
-API health endpoint. Calendar and price merging, predictive feature engineering,
-model architectures, training, predictions, and inventory calculations are not
-implemented yet.
+development partition, a memory-optimized wide-to-long sales transformation, and
+an API health endpoint. Time-series calculations use `store_id` and `item_id`
+together so the feature logic is safe for the final all-store model. Automated
+all-store partition generation, model architectures, training, predictions, and
+inventory calculations are not implemented yet.
