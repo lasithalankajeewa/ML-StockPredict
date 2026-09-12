@@ -202,7 +202,4 @@ npm.cmd run build
 
 ## Demo video
 
-Record the final 5–10 minute walkthrough, upload it as an unlisted YouTube or
-shareable Drive video, and place its URL here before submission:
-
-**Demo video:** pending recording
+**Demo video:** [Watch or download the SmartStock AI walkthrough](demo/SmartStock_AI_Demo.mp4)
