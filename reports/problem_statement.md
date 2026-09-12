@@ -1,29 +1,54 @@
 # SmartStock AI: Problem Statement
 
-## Business context
+## Professional motivation and business context
 
-Retail inventory decisions require a balance between product availability and
-working-capital efficiency. If a store holds too little stock, customers face
-stockouts and the retailer loses sales. If it holds too much, cash remains tied
-up in inventory and the business incurs additional storage, handling, and
-markdown costs. These decisions are difficult when thousands of products have
-different demand levels, seasonal patterns, event effects, prices, and local
-store behavior.
+My professional background is in point-of-sale (POS) systems, where I work with
+sales data from many merchants. These merchants often operate several outlets.
+Some run restaurants, while others run retail stores, but both types of business
+must maintain inventory and order items before they are needed. Inventory
+planning is therefore a recurring operational problem across the merchants and
+outlets represented in POS data.
 
-SmartStock AI is a decision-support prototype that turns recent sales history
-into a seven-day demand forecast for each product-store pair. It then combines
-the forecast with current stock and a safety-stock target to recommend a reorder
-quantity and assign a stock-risk level. The intended user is an inventory
-planner or store manager who needs a short, prioritized list of items requiring
-attention rather than a raw forecast file.
+In practice, merchants often recognize that an item needs replenishment only
+when its stock is almost finished or already unavailable. Ordering too late can
+cause stockouts, lost sales, interrupted restaurant operations, and dissatisfied
+customers. Ordering too much creates a different problem: money is tied up in
+stock, more storage space is required, and perishable or time-sensitive items
+may be wasted. The business needs a reasonable stock level that protects product
+availability without creating unnecessary excess.
 
-## Problem being solved
+Many merchants estimate future demand by looking only at sales from the previous
+week. This is a useful and understandable starting point, but it is often not
+accurate enough. Demand can change by outlet location, product, weekday, month,
+holiday or event, season, selling price, and recent sales pattern. Weather,
+promotions, local activity, and supplier conditions may also matter when those
+data are available. A useful forecasting system should consider several factors
+together instead of assuming that next week will exactly repeat last week.
 
-The machine-learning problem is supervised regression. For a product in one
-store on a forecast-origin date, the system predicts total unit demand over the
-following seven days. Inputs include lagged sales, rolling demand statistics,
-price behavior, calendar attributes, events, product hierarchy, store, and
-state. A forecast is converted into an inventory recommendation using:
+## Proposed solution
+
+SmartStock AI is a decision-support prototype that turns POS-style sales history
+into a seven-day demand forecast for each product-store pair. It combines that
+forecast with current stock and a safety-stock target to recommend a reorder
+quantity and assign a stock-risk level. The intended user is a merchant,
+inventory planner, or outlet manager who needs a prioritized list of products
+requiring attention rather than a raw forecast file.
+
+I selected a Deep Neural Network (DNN) because demand is influenced by nonlinear
+relationships between numerical history and categorical context. For example,
+the same weekday or event can affect different products, categories, stores, and
+locations in different ways. The model uses dense layers and categorical
+embeddings to learn these interactions. The DNN is still evaluated against a
+seasonal naive method and a smaller ANN; it is selected only if validation
+results show that it predicts demand more reliably.
+
+The machine-learning task is supervised regression. For a product in one store
+on a forecast-origin date, the system predicts total unit demand over the
+following seven days. Current inputs include lagged sales, rolling demand
+statistics, price behavior, calendar attributes, events, product hierarchy,
+store, and state. Weather is identified as a useful future extension because it
+is not available in the stored dataset used for this experiment. A forecast is
+converted into an inventory recommendation using:
 
 ```text
 recommended reorder = max(0, predicted 7-day demand + safety stock - current stock)
@@ -36,11 +61,12 @@ business action while keeping the forecast visible for human review.
 
 ## Data and prediction scope
 
-The project uses stored M5 retail sales data, which contains
-hierarchical Walmart unit-sales data for 3,049 products sold across ten stores
-in California, Texas, and Wisconsin. Calendar, event, SNAP, and weekly selling
-price data provide explanatory variables. The implemented final evaluation
-covers 30,490 product-store series and 853,720 rolling forecast origins.
+To represent the multi-outlet environment I encounter in POS work, I use stored
+multi-location retail sales data. It contains hierarchical unit sales for 3,049
+products sold across ten stores in California, Texas, and Wisconsin. Calendar,
+event, SNAP, and weekly selling-price data provide explanatory variables. The
+implemented final evaluation covers 30,490 product-store series and 853,720
+rolling forecast origins.
 
 The source dataset supports a 28-day objective. SmartStock AI intentionally
 uses a seven-day horizon because weekly replenishment is easier to present and
