@@ -97,6 +97,7 @@ notebooks/     EDA, feature-engineering, and model experiment notebooks
 src/           Data pipeline, models, configuration, and utilities
 models/        Generated trained models and preprocessing artifacts
 api/           FastAPI application and future service layer
+frontend/      Next.js inventory decision dashboard
 reports/       Project notes, evaluation results, and figures
 tests/         Automated tests
 ```
@@ -154,6 +155,18 @@ python -m uvicorn api.main:app --reload
 
 Open `http://127.0.0.1:8000/health` to check the service, or
 `http://127.0.0.1:8000/docs` for the generated API documentation.
+
+In another terminal, start the inventory dashboard with:
+
+```powershell
+cd frontend
+npm.cmd install
+npm.cmd run dev
+```
+
+Open `http://localhost:3000`. The dashboard displays the final-model metrics,
+inventory risks, reorder actions, and a selectable product-demand detail view.
+Its live refresh action calls FastAPI through a server-side Next.js proxy.
 
 The `POST /predict` endpoint accepts one engineered feature row together with
 the product ID, current stock, and safety stock. It loads the latest exported
