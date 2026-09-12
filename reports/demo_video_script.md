@@ -12,9 +12,9 @@ text and narration. Replace the pending link in the root README after upload.
 ## 0:45–1:30 — Repository and data
 
 - Show the root README and repository structure.
-- Open `reports/dataset_notes.md` and identify the M5 source and usage rules.
+- Open `reports/dataset_notes.md` and identify the three stored raw CSV files.
 - Mention 3,049 products, ten stores, and 30,490 product-store series.
-- Explain that the download script recreates raw data on a fresh machine.
+- Explain where the CSV files must be copied on a fresh machine.
 
 ## 1:30–2:30 — EDA and feature pipeline
 

@@ -2,7 +2,7 @@
 
 SmartStock AI forecasts each product-store pair's total demand for the next
 seven days and turns that forecast into an inventory risk and reorder quantity.
-The project uses the M5 Forecasting - Accuracy dataset and includes an executed
+The project uses stored M5 retail sales CSV files and includes an executed
 EDA, a leakage-safe feature pipeline, ANN/DNN experiments, final evaluation,
 the selected model, a FastAPI service, and a searchable Next.js dashboard.
 
@@ -47,7 +47,7 @@ a frozen final-forecast catalog containing all 30,490 product-store pairs.
 | Path | Purpose |
 |---|---|
 | [`reports/problem_statement.md`](reports/problem_statement.md) | Business problem, objective, scope, success criteria, and constraints |
-| [`reports/dataset_notes.md`](reports/dataset_notes.md) | Dataset source, competition rules, citation, and download procedure |
+| [`reports/dataset_notes.md`](reports/dataset_notes.md) | Required raw CSV files, validation, storage location, and pipeline usage |
 | [`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb) | Executed EDA with demand, calendar, event, price, and product visualizations |
 | [`notebooks/02_feature_engineering.ipynb`](notebooks/02_feature_engineering.ipynb) | Incremental feature-development notebook |
 | [`notebooks/03_model_experiments.ipynb`](notebooks/03_model_experiments.ipynb) | Baseline, ANN, DNN, five tuning runs, selection, and final evaluation |
@@ -64,9 +64,8 @@ a frozen final-forecast catalog containing all 30,490 product-store pairs.
 The committed model and dashboard catalog let you run the demonstration without
 downloading or retraining the M5 dataset.
 
-Prerequisites are Git, Python 3.11, and Node.js 20.9 or newer. A Kaggle account
-and at least 2 GB of free disk space are needed only to reproduce the full data
-and training workflow.
+Prerequisites are Git, Python 3.11, and Node.js 20.9 or newer. At least 2 GB of
+free disk space is recommended for the full data and training workflow.
 
 ### 1. Clone and install Python dependencies
 
@@ -111,22 +110,22 @@ demonstration inputs.
 
 ## Reproduce the data and modeling workflow
 
-The raw and processed datasets are intentionally not committed. Two raw files
-exceed GitHub's 100 MB per-file limit, and the processed partitions total
-hundreds of megabytes. They can be recreated from the official source.
+The raw and processed datasets are intentionally not committed. Two stored raw
+CSV files exceed GitHub's 100 MB per-file limit, and the processed partitions
+total hundreds of megabytes.
 
-### 1. Download M5
+### 1. Place the stored raw CSV files
 
-Create a Kaggle account, accept the
-[M5 competition rules](https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules),
-and configure a Kaggle API token. Then run:
+Copy the project dataset files into `data/raw/`:
 
-```powershell
-python scripts/download_m5_data.py
+```text
+data/raw/calendar.csv
+data/raw/sales_train_evaluation.csv
+data/raw/sell_prices.csv
 ```
 
-See [dataset notes](reports/dataset_notes.md) for credential options, source,
-usage terms, and citation.
+See [dataset notes](reports/dataset_notes.md) for file descriptions, validation,
+and usage instructions.
 
 ### 2. Build features
 

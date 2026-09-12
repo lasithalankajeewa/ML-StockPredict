@@ -1,68 +1,76 @@
 # Dataset Source, Access, and Usage
 
-## Source
+## Stored raw CSV files
 
-SmartStock AI uses the **M5 Forecasting - Accuracy** competition dataset hosted
-by Kaggle:
+SmartStock AI uses three raw CSV files stored in the project under `data/raw/`:
 
-- Data page: <https://www.kaggle.com/competitions/m5-forecasting-accuracy/data>
-- Competition rules: <https://www.kaggle.com/competitions/m5-forecasting-accuracy/rules>
-- Results paper: Makridakis et al., *The M5 accuracy competition: Results,
-  findings and conclusions*, International Journal of Forecasting, 2022,
-  <https://doi.org/10.1016/j.ijforecast.2021.11.013>.
+| File | Purpose |
+|---|---|
+| `calendar.csv` | Maps day identifiers to dates, weekdays, months, events, SNAP indicators, and selling weeks. |
+| `sales_train_evaluation.csv` | Contains the product hierarchy, store identifiers, and daily unit demand in wide format. |
+| `sell_prices.csv` | Contains weekly product selling prices for each store. |
 
-The dataset contains daily unit sales for 3,049 Walmart products across ten
-stores in California, Texas, and Wisconsin. It also includes calendar events,
-SNAP indicators, product hierarchies, and weekly selling prices.
+The pipeline expects this exact layout:
 
-## License and usage conditions
-
-Kaggle distributes these files subject to the M5 competition rules. This
-repository does not relicense or redistribute the raw data. Every user must have
-a Kaggle account, accept the competition rules on the competition page, and use
-the data according to those rules. The project source code is separate from the
-dataset's usage terms.
-
-The three required files are:
-
-- `calendar.csv`
-- `sales_train_evaluation.csv`
-- `sell_prices.csv`
-
-The raw files are intentionally excluded from Git because two exceed GitHub's
-100 MB per-file limit. Processed feature partitions are also generated locally
-and excluded because they total hundreds of megabytes.
-
-## Reproducible download
-
-Install the project dependencies, configure Kaggle credentials, and accept the
-competition rules in your browser. Kaggle accepts either a `kaggle.json` token
-or `KAGGLE_USERNAME` and `KAGGLE_KEY` environment variables. Then run:
-
-```powershell
-python scripts/download_m5_data.py
+```text
+data/
+  raw/
+    calendar.csv
+    sales_train_evaluation.csv
+    sell_prices.csv
 ```
 
-The script invokes Kaggle's official API, downloads the competition archive,
-extracts only the three required files into `data/raw/`, and verifies that each
-file exists and is nonempty. Use `--force` to replace existing raw files and
-`--keep-archive` to retain the downloaded ZIP.
+Do not rename the files or change their column names. The loader reads them from
+`data/raw/` using the filenames defined in `src/config.py`.
 
-Build leakage-safe feature partitions after downloading:
+## Validate the stored files
+
+From the repository root, activate the Python environment and run:
 
 ```powershell
-python -m src.data.pipeline
+python -c "from src.data.load_data import load_raw_data; data = load_raw_data(); print({name: frame.shape for name, frame in data.items()})"
 ```
 
-The pipeline validates schemas, required values, unique keys, demand and price
-ranges, and cross-file relationships. It processes stores sequentially and
-writes `data/processed/features/store_id=<STORE_ID>/features.parquet` plus a
-manifest. Time-series calculations group by both `store_id` and `item_id` to
-prevent history from crossing store boundaries.
+`load_raw_data()` checks the CSV schemas, required values, unique keys, demand
+and price ranges, and relationships between the files. It stops with an
+actionable error when a file is missing or invalid.
 
-## Expected local storage
+## Build model-ready data
 
-The raw download is several hundred megabytes and the complete processed
-feature set is larger. Ensure at least 2 GB of free space before building every
-store. These local files can always be recreated from the documented source and
-pipeline, so they should remain outside version control.
+Build a single store first:
+
+```powershell
+python -m src.data.pipeline --stores CA_1
+```
+
+Build all stores from the stored raw CSV files:
+
+```powershell
+python -m src.data.pipeline --overwrite
+```
+
+The pipeline converts daily sales from wide to long format, joins calendar and
+price data, removes unavailable pre-release history, creates the seven-day
+target, and calculates lag, rolling, price, event, and cyclical time features.
+It processes stores sequentially to control memory usage.
+
+Generated partitions are written to:
+
+```text
+data/processed/features/store_id=<STORE_ID>/features.parquet
+```
+
+The accompanying `manifest.csv` records row counts, date coverage, file sizes,
+and output locations. All time-series features are grouped by `store_id` and
+`item_id`, preventing demand history from crossing store boundaries.
+
+## Moving the project to another machine
+
+The raw CSV files are local project inputs. Two files exceed GitHub's standard
+100 MB per-file limit, so they are excluded from normal Git commits. After
+cloning the repository on another machine, copy the same three stored CSV files
+into `data/raw/` before rebuilding features or rerunning model training.
+
+The committed selected model, evaluation results, and dashboard catalog do not
+need the raw CSV files. They allow FastAPI and the Next.js dashboard to run
+immediately after installing dependencies.

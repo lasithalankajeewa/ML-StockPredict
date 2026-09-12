@@ -15,4 +15,3 @@ pyarrow
 joblib
 python-dotenv
 pytest
-kaggle

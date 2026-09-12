@@ -36,13 +36,13 @@ business action while keeping the forecast visible for human review.
 
 ## Data and prediction scope
 
-The project uses the M5 Forecasting - Accuracy dataset, which contains
+The project uses stored M5 retail sales data, which contains
 hierarchical Walmart unit-sales data for 3,049 products sold across ten stores
 in California, Texas, and Wisconsin. Calendar, event, SNAP, and weekly selling
 price data provide explanatory variables. The implemented final evaluation
 covers 30,490 product-store series and 853,720 rolling forecast origins.
 
-The original M5 competition used a 28-day objective. SmartStock AI intentionally
+The source dataset supports a 28-day objective. SmartStock AI intentionally
 uses a seven-day horizon because weekly replenishment is easier to present and
 evaluate in an inventory dashboard. This is an educational decision-support
 system, not a production ordering system.
